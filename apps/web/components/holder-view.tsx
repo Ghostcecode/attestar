@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { User, ShieldCheck, Wallet, SealCheck, Warning } from "@phosphor-icons/react";
 import { useWallet } from "@/lib/wallet";
 import { attestarReader } from "@/lib/contracts";
+import { decodeAttestation } from "@/lib/attestation-record";
 import { inclusionForBrowser } from "@/lib/prover-browser";
 import { loadLedger, toHolders, matchByAddress, type LedgerEntry } from "@/lib/ledger";
 import { Panel, Eyebrow, Stat } from "@/components/panel";
@@ -48,10 +49,11 @@ export function HolderView() {
     try {
       const latest = await attestarReader().latest().then((t) => t.result);
       if (latest) {
+        const record = decodeAttestation(latest);
         setPublished({
-          epoch: latest.epoch.toString(),
-          solvent: latest.solvent,
-          liabRootHex: Buffer.from(latest.liab_root).toString("hex"),
+          epoch: record.epoch.toString(),
+          solvent: record.solvent,
+          liabRootHex: Buffer.from(record.liabRoot).toString("hex"),
         });
       } else {
         setPublished(null);
